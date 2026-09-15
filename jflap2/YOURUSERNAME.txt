@@ -1,4 +1,4 @@
-REPLACE_THIS_LINE_WITH_YOUR_USERNAME
+cchua
 
 Instructions:
 - The grading script reads ONLY the first line of this file to identify
