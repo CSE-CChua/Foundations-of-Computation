@@ -1,0 +1,226 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+
+\title{CSCE 355: JFLAP3 --- Building DFAs}
+\author{}
+\date{}
+
+\newcommand{\fn}[1]{\texttt{\detokenize{#1}}}
+
+\begin{document}
+\maketitle
+
+% ------------------------------------------------------------------
+% NOTE TO STUDENTS: every machine you submit MUST be a DFA. A machine
+% that is not deterministic (or has lambda transitions, or reads more
+% than one symbol per transition) receives NO CREDIT for that problem.
+% See "What counts as a DFA" below for how to check in JFLAP.
+% ------------------------------------------------------------------
+
+\section*{Overview}
+
+In this assignment you will build seven deterministic finite automata (DFAs) in
+JFLAP. Each is checked automatically. The assignment is worth \textbf{40 points}:
+Problems 1--6 are worth 5 points each and Problem 7 is worth 10 points.
+
+\subsection*{Getting started}
+
+\begin{itemize}
+  \item Read the JFLAP tutorial: \url{https://jflap.org/tutorial/}.
+  \item JFLAP is a free \texttt{.jar} file from \url{https://www.jflap.org}. You need
+        Java 8 or higher. Start it with \texttt{java -jar JFLAP7\_1.jar} (use the name of
+        the file you downloaded).
+  \item Unzip this assignment folder. (It is a good idea to append your username to the
+        folder name, e.g.\ \fn{JFLAP3_jsmith}.)
+  \item In JFLAP use \textbf{File $\to$ Open} to open one of the provided \texttt{.jff}
+        files. Each one is an empty \emph{Finite Automaton}. Build your DFA, then
+        \textbf{File $\to$ Save} it \emph{under the same file name}. Do not change the
+        machine type.
+  \item JFLAP shows the empty string as $\lambda$. Just leave the empty string as
+        $\lambda$; do not change it to $\epsilon$.
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{|c|l|l|c|}
+\hline
+\textbf{\#} & \textbf{Your DFA (edit this file)} & \textbf{Test strings (do not edit)} & \textbf{Points}\\
+\hline
+1 & \fn{problem1_01then10.jff}     & \fn{problem1_01then10_tests.txt}     & 5 \\
+2 & \fn{problem2_odd1s_0to1.jff}   & \fn{problem2_odd1s_0to1_tests.txt}   & 5 \\
+3 & \fn{problem3_no010.jff}        & \fn{problem3_no010_tests.txt}        & 5 \\
+4 & \fn{problem4_div7.jff}         & \fn{problem4_div7_tests.txt}         & 5 \\
+5 & \fn{problem5_parens.jff}       & \fn{problem5_parens_tests.txt}       & 5 \\
+6 & \fn{problem6_01_011.jff}       & \fn{problem6_01_011_tests.txt}       & 5 \\
+7 & \fn{problem7_01_110_011.jff}   & \fn{problem7_01_110_011_tests.txt}   & 10 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{What counts as a DFA}
+
+\textbf{Every machine you submit must be a DFA.} If a machine is not a DFA it receives
+\textbf{zero credit} for that problem, no matter which strings it happens to get right. This
+is checked automatically, before any test string is run. A machine is a DFA when:
+
+\begin{itemize}
+  \item each state has \textbf{exactly one} outgoing transition on \emph{each} symbol of the
+        problem's alphabet: never two (two arrows leaving a state on the same symbol, even to
+        different states, is nondeterminism) and never zero (a missing arrow is not allowed);
+  \item there are \textbf{no $\lambda$ (empty-string) transitions};
+  \item every transition reads \textbf{exactly one symbol}, and that symbol belongs to the
+        problem's alphabet (a single arrow may carry both symbols, e.g.\ labeled
+        \texttt{0,1}, but a label such as \texttt{01} is \emph{not} allowed);
+  \item there is exactly one initial state.
+\end{itemize}
+
+\textbf{You must draw the trap (dead) state.} JFLAP lets you leave transitions out and simply
+rejects a string that gets stuck, but for this assignment that is \emph{not} a DFA: every state
+needs an arrow for every symbol. Wherever a string should be rejected for good, send the missing
+arrows to a non-final trap state that loops to itself on every symbol. A DFA missing any
+transition receives zero credit for that problem, and the report lists the states and symbols
+that are missing.
+
+\subsection*{How to check in JFLAP}
+
+\textbf{Test $\to$ Highlight Nondeterminism.} With your machine open in the editor, choose
+this menu item. JFLAP highlights every state that has nondeterministic behavior. If nothing
+is highlighted your machine passes this check; if a state is highlighted, look at its
+outgoing arrows and fix the conflict. Also make sure you did not leave any $\lambda$
+transition behind. When you single-step a string with \textbf{Input $\to$ Step}, a DFA has
+exactly one current state at every point. JFLAP does \emph{not} warn you about missing
+transitions, so also check by eye that every state has an outgoing arrow for each symbol
+(for the alphabet $\{0,1\}$: two arrows per state; the trap state counts as a state). Running
+\texttt{python3 test\_dfa.py} (below) checks this too.
+
+\section*{Problems}
+
+\subsection*{Problem 1 (5 points)}
+Construct a DFA that recognizes any number of \texttt{01}, followed by \texttt{10}s, without
+overlap (e.g.\ \texttt{010} is not in the language recognized by the DFA). The alphabet is
+$\{0,1\}$.
+\begin{itemize}
+  \item The test file has 8 strings: the first 3 should accept, the last 5 should reject.
+  \item The empty string should accept (see ``Testing the empty string'' below).
+\end{itemize}
+
+\subsection*{Problem 2 (5 points)}
+Construct a DFA in 8 or fewer states (I am fine if you delete unreachable states) that is the
+product construction of two DFAs: one that recognizes an odd number of \texttt{1}s, and one
+that recognizes a binary number with a leading \texttt{0} and ending \texttt{1}. A string is
+accepted only if it satisfies \emph{both} conditions. The alphabet is $\{0,1\}$.
+\begin{itemize}
+  \item The test file has 9 strings: the first 4 should accept, the last 5 should reject.
+\end{itemize}
+
+\subsection*{Problem 3 (5 points)}
+Construct a DFA that recognizes strings without \texttt{010} as a substring, or that are just
+\texttt{01} repeated (\texttt{01}, \texttt{0101}, \texttt{010101}, \ldots). The empty string
+should be accepted. The alphabet is $\{0,1\}$.
+\begin{itemize}
+  \item The test file has 8 strings: the first 4 should accept, the last 4 should reject.
+\end{itemize}
+
+\subsection*{Problem 4 (5 points)}
+Construct a DFA to recognize unsigned binary strings evenly divisible by 7. The alphabet is
+$\{0,1\}$.
+\begin{itemize}
+  \item You may accept the empty string (it will not be tested).
+  \item Leading zeros have no meaning (this is not octal notation): \texttt{0101} and
+        \texttt{0000101} are both the number 5.
+  \item The test file has 23 strings: the last five should accept, all previous ones reject.
+\end{itemize}
+
+\subsection*{Problem 5 (5 points)}
+Construct a DFA to recognize, for the alphabet of just parentheses $\Sigma=\{\texttt{(},\texttt{)}\}$,
+those strings that have balanced, proper parentheses pairs, with no more than nesting depth 4.
+For example, you do not have to recognize \texttt{((((()))))} as being in the language (you
+should reject it), but you do have to recognize \texttt{(((())))} or even
+\texttt{((())((()))((())))}.
+\begin{itemize}
+  \item You may accept the empty string (it will not be tested).
+  \item The test file has 11 strings: the first 5 should accept, the last 6 should reject.
+  \item Once you are done, ask yourself what is interesting about this, do you think? (Not graded.)
+\end{itemize}
+
+\subsection*{Problem 6 (5 points)}
+Construct a DFA recognizing the concatenation of any number of \texttt{01} and/or \texttt{011},
+zero or more copies of each in any order. The alphabet is $\{0,1\}$.
+\begin{itemize}
+  \item The test file has 8 strings: the first 4 should accept, the last 4 should reject.
+  \item The empty string should accept.
+\end{itemize}
+
+\subsection*{Problem 7 (10 points)}
+Construct a DFA recognizing the concatenation of any number of \texttt{01}, \texttt{110},
+and/or \texttt{011}, zero or more copies of each in any order (the copies may be interleaved;
+look at the tests). The alphabet is $\{0,1\}$.
+\begin{itemize}
+  \item The test file has 117 strings: all but the last ten should accept, and the last ten
+        should reject.
+  \item The empty string should accept.
+\end{itemize}
+
+\section*{Testing your DFAs}
+
+\subsection*{In JFLAP}
+\begin{enumerate}
+  \item Open your DFA (it needs an initial state to be tested).
+  \item Choose \textbf{Input $\to$ Multiple Run}.
+  \item Click \textbf{Load Inputs} (at the bottom) and select the problem's test file.
+  \item Click \textbf{Run Inputs} and compare each row with what the problem says should
+        accept and reject.
+\end{enumerate}
+
+\subsubsection*{Testing the empty string}
+The test files do not contain the empty string. In Multiple Run, put the cursor on the last
+row and press Enter to add a blank line (an empty input), then run again. The empty string
+should accept in Problems 1, 3, 6, and 7 (and should reject in Problem 2).
+
+\subsection*{From the command line}
+This folder contains \texttt{test\_dfa.py}, the same script that is used to grade you (Python 3
+is required). From inside this folder run
+\begin{center}
+\texttt{python3 test\_dfa.py}
+\end{center}
+to check all seven problems, or \texttt{python3 test\_dfa.py 3} to check only Problem 3. The
+report tells you, for each problem: whether the file is really a DFA, which provided test
+strings are wrong, and your score. Run it as often as you like.
+
+\section*{Grading}
+
+Each problem earns its points only if \emph{all} of the following hold; there is no partial
+credit within a problem.
+\begin{itemize}
+  \item The machine is a DFA (see above).
+  \item Every string in the problem's test file gets the expected result.
+  \item Your DFA recognizes \emph{exactly} the described language. The provided strings are
+        only examples: the grader compares your DFA with the described language on all
+        strings, so a DFA that passes the samples but is wrong somewhere else earns no
+        credit. When this happens the report shows a shortest string on which your DFA is
+        wrong.
+  \item Problem 2 only: at most 8 states are reachable from the initial state (the trap state
+        counts if it is reachable).
+\end{itemize}
+
+\textbf{Do not edit the test files or \texttt{test\_dfa.py}.} They are replaced with the
+original versions before grading, so changing them can only make your own testing misleading.
+
+\section*{Submission}
+
+\begin{enumerate}
+  \item Open \textbf{YOURUSERNAME.txt} and put your university username as the \emph{first
+        line} of the file (only your username, nothing else on that line). This is how your
+        submission is identified.
+  \item Make sure each of your seven DFAs is saved in its provided \texttt{.jff} file. Do not
+        rename any of the provided files.
+  \item Run \texttt{python3 test\_dfa.py} one last time to make sure everything is as you
+        expect.
+  \item Submit this entire folder (or a zip of it) as instructed.
+\end{enumerate}
+
+\end{document}
