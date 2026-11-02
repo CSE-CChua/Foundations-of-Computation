@@ -1,0 +1,265 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+
+\title{CSCE 355: JFLAP4 --- NFAs and $\lambda$-NFAs}
+\author{}
+\date{}
+
+\renewcommand{\labelitemi}{$\bullet$}
+\newcommand{\fn}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\re}[1]{\texttt{#1}}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+
+In this assignment you will build seven nondeterministic finite automata in JFLAP: five NFAs
+and two $\lambda$-NFAs (NFAs with empty-string transitions, also called $\varepsilon$-NFAs).
+Each is checked automatically. The assignment is worth \textbf{30 points}.
+
+Regular expressions below use course notation: \re{+} is union, \re{*} is Kleene star, and
+$\lambda$ is the empty string.
+
+\subsection*{Getting started}
+
+\begin{itemize}
+  \item Read the JFLAP tutorial: \url{https://jflap.org/tutorial/}.
+  \item JFLAP is a free \texttt{.jar} file from \url{https://www.jflap.org}. You need
+        Java 8 or higher. Start it with \texttt{java -jar JFLAP7\_1.jar} (use the exact name of
+        the file you downloaded; on macOS and Linux, upper and lower case matter).
+  \item Unzip this assignment folder. (It is a good idea to append your username to the
+        folder name, e.g.\ \fn{JFLAP4_jsmith}.)
+  \item In JFLAP use \textbf{File $\to$ Open} to open one of the provided \texttt{.jff}
+        files. Each one is an empty \emph{Finite Automaton}. Build your machine, then
+        \textbf{File $\to$ Save} it \emph{under the same file name}. Do not change the
+        machine type.
+  \item JFLAP shows the empty string as $\lambda$. Just leave it as $\lambda$; do not change it
+        to $\varepsilon$. To make a $\lambda$ transition, draw the transition and press Enter
+        without typing anything.
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{|c|l|l|c|}
+\hline
+\textbf{\#} & \textbf{Your machine (edit this file)} & \textbf{Test strings (do not edit)} & \textbf{Points}\\
+\hline
+1 & \fn{problem1_01then10.jff}          & \fn{problem1_01then10_tests.txt}          & 3 \\
+2 & \fn{problem2_cab.jff}               & \fn{problem2_cab_tests.txt}               & 4.5 \\
+3 & \fn{problem3_no010.jff}             & \fn{problem3_no010_tests.txt}             & 4.5 \\
+4 & \fn{problem4_last_new.jff}          & \fn{problem4_last_new_tests.txt}          & 3 \\
+5 & \fn{problem5_10i1.jff}              & \fn{problem5_10i1_tests.txt}              & 3 \\
+6 & \fn{problem6_nfa_01_110_011.jff}    & \fn{problem6_nfa_01_110_011_tests.txt}    & 4.5 \\
+7 & \fn{problem7_enfa_01_110_011.jff}   & \fn{problem7_enfa_01_110_011_tests.txt}   & 7.5 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{NFA or $\lambda$-NFA? Rules for every machine}
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parindent}{0pt}
+The test strings cannot tell an NFA from a $\lambda$-NFA, because both kinds of machine
+recognize the same languages. What separates them here is the machine itself, and that is
+checked automatically, before any test string is run:
+
+\begin{center}
+\begin{tabular}{|c|l|l|l|}
+\hline
+\textbf{Problem} & \textbf{Build a} & \textbf{$\lambda$ transitions} & \textbf{Size limit}\\
+\hline
+1 & $\lambda$-NFA & \textbf{required}, and must matter & at most 4 states \\
+2 & NFA & \textbf{not allowed} & at most 4 states \\
+3 & NFA & \textbf{not allowed} & at most 6 states \\
+4 & NFA & \textbf{not allowed} & none \\
+5 & NFA & \textbf{not allowed} & at most 8 states \\
+6 & NFA & \textbf{not allowed} & at most 8 states \\
+7 & $\lambda$-NFA & \textbf{required}, and must matter & at most 12 edges \\
+\hline
+\end{tabular}
+\end{center}
+\end{minipage}
+
+A machine that breaks one of these rules receives \textbf{zero credit} for that problem, even if
+it accepts and rejects every string correctly:
+\begin{itemize}
+  \item \textbf{NFA problems (2--6): no $\lambda$ transitions at all.} A single $\lambda$
+        transition anywhere in the file earns 0 for that problem.
+  \item \textbf{$\lambda$-NFA problems (1 and 7): use $\lambda$ transitions, and make them
+        matter.} The grader deletes all of your $\lambda$ transitions and checks that the
+        language changes. A correct machine with no $\lambda$ transitions, or with $\lambda$
+        transitions that could simply be removed, earns 0 for that problem.
+  \item \textbf{One symbol per transition.} Every other transition reads exactly one symbol of
+        the problem's alphabet. A label such as \texttt{01} (two symbols in a row) earns 0.
+        Draw a separate transition for each symbol: a self-loop on \texttt{a}, \texttt{b} and
+        \texttt{c} is three transitions, and JFLAP stacks their labels above the state.
+        \emph{Comma labels:} the grader reads a label such as \texttt{0,1} as one transition
+        per symbol, and each one counts separately toward a size limit (\texttt{0,1} is two
+        edges, \texttt{a,b,c} is three). But JFLAP itself does not: its Multiple Run reads
+        \texttt{0,1} as a single three-character string, so your JFLAP tests will not match.
+        Use separate transitions.
+  \item \textbf{Exactly one initial state.}
+\end{itemize}
+Nondeterminism is of course allowed in both kinds of machine: a state may have several
+transitions on the same symbol, or none at all (a string that gets stuck is rejected, so you do
+not need a trap state).
+
+\textbf{Size limits.} \emph{Every} state in your file counts toward a state limit, and
+\emph{every} transition (including self-loops and $\lambda$ transitions, with a comma label
+such as \texttt{0,1} counting once per symbol) counts toward Problem 7's edge limit, whether or not it can be reached, so delete anything you are not using. Each
+state or edge over the limit costs \textbf{50\%} of that problem's points: one over the limit
+earns half credit, two over earns nothing. Every limit can be met: there is a correct machine
+within each one.
+
+\section*{Problems}
+
+\subsection*{Problem 1: $\lambda$-NFA (3 points, at most 4 states)}
+Construct a $\lambda$-NFA, in no more than 4 states, that recognizes any number of \texttt{01}s
+followed by any number of \texttt{10}s, without overlap: the language \re{(01)*(10)*}. For
+example, \texttt{010} is \emph{not} in the language. The alphabet is $\{0,1\}$.
+\begin{itemize}
+  \item Your machine must use $\lambda$ transitions productively: deleting all of them must
+        change the language it recognizes.
+  \item The test file has 8 strings: the first 3 should accept, the last 5 should reject.
+  \item The empty string should accept (see ``Testing the empty string'' below).
+\end{itemize}
+
+\subsection*{Problem 2: NFA (4.5 points, at most 4 states)}
+Construct an NFA (no $\lambda$ transitions) in 4 or fewer states that recognizes the strings that contain \texttt{cab} as a
+substring: \re{(a+b+c)*cab(a+b+c)*}. The alphabet is $\{a,b,c\}$.
+\begin{itemize}
+  \item The test file has 8 strings: the first 4 should accept, the last 4 should reject.
+  \item The empty string should reject.
+  \item Remember that a self-loop on \texttt{a}, \texttt{b} and \texttt{c} is three separate
+        transitions, one per symbol.
+\end{itemize}
+
+\subsection*{Problem 3: NFA (4.5 points, at most 6 states)}
+Construct an NFA (no $\lambda$ transitions) in 6 or fewer states that recognizes the strings that do not contain
+\texttt{010} as a substring, \emph{or} that are just \texttt{01} repeated, that is, in
+\re{(01)*}. For example, \texttt{01010101} is accepted but \texttt{0101010} is not. The empty
+string should be accepted. The alphabet is $\{0,1\}$.
+\begin{itemize}
+  \item The test file has 8 strings: the first 4 should accept, the last 4 should reject.
+  \item The empty string should accept.
+\end{itemize}
+
+\subsection*{Problem 4: NFA (3 points, no size limit)}
+Construct an NFA (no $\lambda$ transitions) that recognizes the strings over $\Sigma=\{1,2,3,4\}$ whose last symbol does
+not appear anywhere before it. For example, \texttt{1234} and \texttt{4231} are accepted;
+\texttt{12344} and \texttt{4214} are not.
+\begin{itemize}
+  \item You may accept the empty string (it will not be tested).
+  \item The test file has 10 strings: the first 5 should accept, the last 5 should reject.
+  \item Remember to add a separate transition for each input symbol.
+\end{itemize}
+
+\subsection*{Problem 5: NFA (3 points, at most 8 states)}
+Construct an NFA (no $\lambda$ transitions) in 8 or fewer states that recognizes the strings over $\Sigma=\{0,1,2\}$ that
+contain a substring $1\,0^i\,1$ (a \texttt{1}, then $i$ copies of \texttt{0}, then a
+\texttt{1}) where $i > 0$ is a multiple of 2 or a multiple of 3, that is,
+$i \in \{2, 3, 4, 6, 8, 9, 10, 12, \ldots\}$:
+\[
+  \re{(0+1+2)*\,1\,(00(00)* + 000(000)*)\,1\,(0+1+2)*}
+\]
+For example, \texttt{1001} ($i=2$), \texttt{10001} ($i=3$), \texttt{100001} ($i=4$) and
+\texttt{21210012121} are accepted; \texttt{101} ($i=1$), \texttt{1000001} ($i=5$) and
+\texttt{2100000001} ($i=7$) are not.
+\begin{itemize}
+  \item The test file has 17 strings: the first 9 should accept, the last 8 should reject.
+  \item The empty string should reject.
+\end{itemize}
+
+\subsection*{Problem 6: NFA (4.5 points, at most 8 states)}
+Construct an NFA, with no $\lambda$ transitions and in no more than 8 states, recognizing the
+concatenation of any number of \texttt{01}, \texttt{110}, and/or \texttt{011}, zero or more
+copies of each in any order (the copies may be interleaved; look at the tests):
+\re{(01+110+011)*}. The alphabet is $\{0,1\}$.
+\begin{itemize}
+  \item The test file has 117 strings: the first 107 should accept, the last 10 should reject.
+  \item The empty string should accept.
+\end{itemize}
+
+\subsection*{Problem 7: $\lambda$-NFA (7.5 points, at most 12 edges)}
+Construct a $\lambda$-NFA for the same language as Problem 6, \re{(01+110+011)*}. This is easy,
+actually, but this time the limit is on \emph{edges}, not states: no more than 12 edges. Every
+transition counts as one edge, including self-loops and $\lambda$ transitions; a label such as
+\texttt{0,1} counts as two edges.
+\begin{itemize}
+  \item Your machine must use $\lambda$ transitions productively: deleting all of them must
+        change the language it recognizes. (A $\lambda$ transition that could simply be removed
+        does not count.)
+  \item The test file is the same as Problem 6's: the first 107 strings should accept, the last
+        10 should reject.
+  \item The empty string should accept.
+  \item Not graded: compare your solutions to Problems 6 and 7 with respect to number of states,
+        number of edges, clarity, etc.
+\end{itemize}
+
+\section*{Testing your machines}
+
+\subsection*{In JFLAP}
+\begin{enumerate}
+  \item Open your machine (it needs an initial state to be tested).
+  \item Choose \textbf{Input $\to$ Multiple Run}.
+  \item Click \textbf{Load Inputs} (at the bottom) and select the problem's test file.
+  \item Click \textbf{Run Inputs} and compare each row with what the problem says should
+        accept and reject.
+\end{enumerate}
+
+\subsubsection*{Testing the empty string}
+The test files do not contain the empty string. In Multiple Run, put the cursor on the last
+row and press Enter to add a blank line (an empty input), then run again. The empty string
+should accept in Problems 1, 3, 6 and 7, and reject in Problems 2 and 5. (Problem 4 does not
+test it.)
+
+\subsection*{From the command line}
+This folder contains \texttt{test\_nfa.py}, the same script that is used to grade you (Python 3
+is required). From inside this folder run
+\begin{center}
+\texttt{python3 test\_nfa.py}
+\end{center}
+to check all seven problems, or \texttt{python3 test\_nfa.py 3} to check only Problem 3. The
+report tells you, for each problem: whether the machine is the required kind and follows the rules above, which provided
+test strings are wrong, its size, and your score. Run it as often as you like.
+
+\section*{Grading}
+
+Each problem earns its points only if \emph{all} of the following hold:
+\begin{itemize}
+  \item The machine is the required kind (NFA or $\lambda$-NFA) and follows the rules above.
+  \item Every string in the problem's test file gets the expected result, and so does the
+        empty string where the problem says what it should do.
+  \item Your machine recognizes \emph{exactly} the described language. The provided strings are
+        only examples: the grader compares your machine with the described language on all
+        strings, so a machine that passes the samples but is wrong somewhere else earns no
+        credit. When this happens the report shows a shortest string on which your machine is
+        wrong.
+\end{itemize}
+A machine that meets all of these but is over its size limit loses 50\% of the problem's points
+per extra state (Problem 7: per extra edge).
+
+\textbf{Do not edit the test files or \texttt{test\_nfa.py}.} They are replaced with the
+original versions before grading, so changing them can only make your own testing misleading.
+
+\section*{Submission}
+
+\begin{enumerate}
+  \item Open \textbf{YOURUSERNAME.txt} and put your university username as the \emph{first
+        line} of the file (only your username, nothing else on that line). This is how your
+        submission is identified.
+  \item Make sure each of your seven machines is saved in its provided \texttt{.jff} file. Do
+        not rename any of the provided files.
+  \item Put screenshots of all seven machines into one PDF file named \fn{screenshots.pdf} in
+        this folder.
+  \item Run \texttt{python3 test\_nfa.py} one last time to make sure everything is as you
+        expect.
+  \item Zip this entire folder and submit the zip as one file.
+\end{enumerate}
+
+\end{document}

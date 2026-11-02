@@ -1,0 +1,8 @@
+REPLACE_THIS_LINE_WITH_YOUR_USERNAME
+
+Instructions:
+- The grading script reads ONLY the first line of this file to identify
+  your submission.
+- Replace the placeholder text on line 1 above with your university
+  username, and nothing else (no name, no email, no extra spaces).
+- Leave the rest of this file as-is; only line 1 is read.
