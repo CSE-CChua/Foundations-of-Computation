@@ -1,0 +1,202 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\title{CSCE 355: JFLAP5 --- Pushdown Automata}
+\author{}
+\date{}
+
+\renewcommand{\labelitemi}{$\bullet$}
+\newcommand{\fn}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\tr}[3]{\texttt{#1, #2 ; #3}}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+
+In this assignment you will build five pushdown automata (PDAs) in JFLAP. Each one is checked
+automatically. The assignment is worth \textbf{50 points}. Throughout, $\mathbb{N} = \{0, 1, 2,
+\ldots\}$ includes 0, and $\lambda$ is the empty string.
+
+\subsection*{Getting started}
+
+\begin{itemize}
+  \item Read the JFLAP PDA tutorial:
+        \url{https://www.jflap.org/tutorial/pda/construct/index.html}.
+  \item JFLAP is a free \texttt{.jar} file from \url{https://www.jflap.org}. You need Java 8 or
+        higher. Start it with \texttt{java -jar JFLAP7\_1.jar} (use the exact name of the file you
+        downloaded; on macOS and Linux, upper and lower case matter).
+  \item Unzip this assignment folder. (It is a good idea to append your username to the folder
+        name, e.g.\ \fn{JFLAP5_jsmith}.)
+  \item In JFLAP use \textbf{File $\to$ Open} to open one of the provided \texttt{.jff} files.
+        Each one is an empty \emph{Pushdown Automaton}. Build your PDA, then \textbf{File $\to$
+        Save} it \emph{under the same file name}. If you ever start a new PDA instead, choose
+        \textbf{Pushdown Automaton} and then \textbf{Multiple Character Input}.
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{|c|l|l|c|}
+\hline
+\textbf{\#} & \textbf{Your PDA (edit this file)} & \textbf{Test strings (do not edit)} & \textbf{Points}\\
+\hline
+1 & \fn{problem1_axbycx.jff}         & \fn{problem1_axbycx_tests.txt}         & 10 \\
+2 & \fn{problem2_not_ww.jff}         & \fn{problem2_not_ww_tests.txt}         & 20 \\
+3 & \fn{problem3_0n1n_or_0n12n.jff}  & \fn{problem3_0n1n_or_0n12n_tests.txt}  & 10 \\
+4 & \fn{problem4_aibjck.jff}         & \fn{problem4_aibjck_tests.txt}         & 5 \\
+5 & \fn{problem5_anbm.jff}           & \fn{problem5_anbm_tests.txt}           & 5 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{How these PDAs work}
+
+\begin{itemize}
+  \item \textbf{Transitions.} JFLAP writes a transition as \tr{read}{pop}{push}. It reads
+        \texttt{read} from the input, pops the string \texttt{pop} from the top of the stack, and
+        pushes the string \texttt{push}, whose first character ends up on top. Any of the three
+        may be $\lambda$: leave the field blank and JFLAP shows $\lambda$. For example,
+        \tr{a}{Z}{aZ} reads an \texttt{a} when \texttt{Z} is on top and leaves \texttt{a} on top
+        of \texttt{Z}.
+  \item \textbf{The stack starts with \texttt{Z}}, the bottom-of-stack marker, and nothing else.
+        You may use any other characters as stack symbols.
+  \item \textbf{Accept by final state.} A string is accepted when the PDA can read all of it and
+        be in a final state; what is left on the stack does not matter. When JFLAP asks
+        ``Accept by'', choose \textbf{Final State}.
+  \item \textbf{Nondeterminism is allowed} and often needed: a state may have several
+        transitions that apply at the same time, and $\lambda$ transitions.
+\end{itemize}
+
+\subsection*{Rules for every PDA}
+These are checked automatically, before any test string is run. A PDA that breaks one of them
+receives \textbf{zero credit} for that problem.
+\begin{itemize}
+  \item Exactly one initial state, and at least one final state.
+  \item The input part of every label uses only symbols of the problem's alphabet. It may read
+        several symbols at once (that is what ``Multiple Character Input'' allows) or none
+        ($\lambda$). Do not type a comma-separated list such as \texttt{a,b}: JFLAP reads that as
+        the three-character string \texttt{a,b}. Draw a separate transition for each choice.
+\end{itemize}
+
+\section*{Problems}
+In every test file, \textbf{the first 5 strings should reject and the last 5 should accept.}
+
+\subsection*{Problem 1 (10 points)}
+Construct a PDA recognizing
+\[
+  L = \{\, a^x b^y c^x \;:\; x, y \in \mathbb{N} \,\}
+\]
+over the alphabet $\{a, b, c\}$: some \texttt{a}s, then any number of \texttt{b}s, then exactly
+as many \texttt{c}s as \texttt{a}s. For example, \texttt{abc}, \texttt{bbb} and
+\texttt{aaacc\-c} are accepted; \texttt{cba} and \texttt{ccc} are not. The empty string should
+\textbf{accept} ($x = y = 0$).
+
+To get you started, the start state can read the \texttt{a}s with these two self-loops:
+\tr{a}{Z}{aZ} and \tr{a}{a}{aa}.
+
+\subsection*{Problem 2 (20 points)}
+Design a PDA for the set of all strings of \texttt{a}s and \texttt{b}s that are \emph{not} of the
+form $ww$, that is, not equal to any string written twice:
+\[
+  L = \{\, s \in \{a,b\}^* \;:\; s \ne ww \text{ for every } w \in \{a,b\}^* \,\}
+\]
+For example, \texttt{a}, \texttt{abbaaaba} and \texttt{bbbbabbb} are accepted; \texttt{abab}
+($w = $ \texttt{ab}) and \texttt{bbbbbbbb} are not. The empty string should \textbf{reject}
+(it is $ww$ with $w = \lambda$).
+
+\emph{Hint 1:} write down some strings that are ``almost'' of the form $ww$ and see what they
+have in common. \emph{Hint 2:} look at the shape
+\texttt{xxxxxx\,a\,xxxxxx\,yy\,b\,yy}, where each \texttt{x} and \texttt{y} stands for any
+symbol.
+
+\subsection*{Problem 3 (10 points)}
+Construct a PDA recognizing
+\[
+  L = \{\, 0^n 1^n \;:\; n \in \mathbb{N},\ n \ge 1 \,\} \;\cup\; \{\, 0^n 1^{2n} \;:\; n \in
+  \mathbb{N},\ n \ge 1 \,\}
+\]
+over the alphabet $\{0, 1\}$. For example, \texttt{0011}, \texttt{011} and \texttt{001111} are
+accepted; \texttt{00111} and \texttt{010101} are not. The empty string should \textbf{reject}
+($n \ge 1$).
+
+\subsection*{Problem 4 (5 points)}
+Construct a PDA recognizing
+\[
+  L = \{\, a^i b^j c^k \;:\; i, j, k \in \mathbb{N},\ j = i + k \,\}
+\]
+over the alphabet $\{a, b, c\}$: some \texttt{a}s, then some \texttt{b}s, then some
+\texttt{c}s, with as many \texttt{b}s as \texttt{a}s and \texttt{c}s together. For example,
+\texttt{abbc}, \texttt{aabb} and \texttt{bbcc} are accepted; \texttt{abc} and \texttt{acb} are
+not. The empty string should \textbf{accept}.
+
+\subsection*{Problem 5 (5 points)}
+Construct a PDA recognizing
+\[
+  L = \{\, a^n b^m \;:\; n, m \in \mathbb{N},\ n \le m \le 2n \,\}
+\]
+over the alphabet $\{a, b\}$: some \texttt{a}s followed by at least as many \texttt{b}s, but no
+more than twice as many. For example, \texttt{ab}, \texttt{abb} and \texttt{aabbb} are accepted;
+\texttt{aab} and \texttt{abbb} are not. The empty string should \textbf{accept}.
+
+\section*{Testing your PDAs}
+
+\subsection*{In JFLAP}
+\begin{enumerate}
+  \item Open your PDA (it needs an initial state to be tested).
+  \item Choose \textbf{Input $\to$ Multiple Run}. When asked ``Accept by'', choose
+        \textbf{Final State}.
+  \item Click \textbf{Load Inputs} and select the problem's test file.
+  \item Click \textbf{Run Inputs}. The first 5 rows should say Reject and the last 5 Accept.
+        For a very nondeterministic PDA (Problem 2 especially) JFLAP may ask whether to continue
+        after 10000 configurations; answer Yes.
+\end{enumerate}
+
+\subsubsection*{Testing the empty string}
+The test files do not contain the empty string. In Multiple Run, put the cursor on the last row
+and press Enter to add a blank line (an empty input), then run again. The empty string should
+accept in Problems 1, 4 and 5, and reject in Problems 2 and 3.
+
+\subsection*{From the command line}
+This folder contains \texttt{test\_pda.py}, the same script that is used to grade you (Python 3
+is required). From inside this folder run
+\begin{center}
+\texttt{python3 test\_pda.py}
+\end{center}
+to check all five problems, or \texttt{python3 test\_pda.py 2} to check only Problem 2. The
+report tells you, for each problem, whether the PDA follows the rules above, which test strings
+are wrong, a shortest string your PDA gets wrong (if any), and your score. Run it as often as you
+like.
+
+\section*{Grading}
+
+Each problem earns its points only if \emph{all} of the following hold:
+\begin{itemize}
+  \item The PDA follows the rules above.
+  \item Every string in the problem's test file gets the expected result, and so does the empty
+        string.
+  \item The PDA gets the right answer on \emph{every} string up to length 10 over $\{a,b\}$,
+        length 7 over $\{a,b,c\}$, and length 12 over $\{0,1\}$, and on some longer strings.
+        The provided strings are only examples, so a PDA that passes them but is wrong elsewhere
+        earns no credit. When this happens the report shows a shortest string on which your PDA
+        is wrong.
+\end{itemize}
+
+\textbf{Do not edit the test files or \texttt{test\_pda.py}.} They are replaced with the
+original versions before grading, so changing them can only make your own testing misleading.
+
+\section*{Submission}
+
+\begin{enumerate}
+  \item Open \textbf{YOURUSERNAME.txt} and put your university username as the \emph{first line}
+        of the file (only your username, nothing else on that line). This is how your submission
+        is identified.
+  \item Make sure each of your five PDAs is saved in its provided \texttt{.jff} file. Do not
+        rename any of the provided files.
+  \item Run \texttt{python3 test\_pda.py} one last time to make sure everything is as you expect.
+  \item Zip this entire folder and submit the zip as one file.
+\end{enumerate}
+
+\end{document}
